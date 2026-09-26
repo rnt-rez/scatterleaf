@@ -585,6 +585,17 @@ export class ScatterLeaf extends HTMLElement {
   private _isSkinTonePanelOpen: boolean = false;
   private _activeTonePickerEmoji: string | null = null;
   private _themeObserver: MutationObserver | null = null;
+  private _colorSchemeQuery: MediaQueryList | null = null;
+  private _handleColorSchemeChange = (): void => {
+    if (this._theme === 'auto') {
+      this.detectAndApplyAutoPalette();
+    }
+  };
+  private _handleOAuthMessage = async (event: MessageEvent): Promise<void> => {
+    if (event.data && event.data.type === 'scatterleaf-oauth-code' && event.data.code) {
+      await this.exchangeOAuthCode(event.data.code);
+    }
+  };
 
   // Modal de Inserção de GIFs (Anti-NSFW)
   private _isMediaModalOpen: boolean = false;
@@ -833,6 +844,11 @@ export class ScatterLeaf extends HTMLElement {
   disconnectedCallback(): void {
     document.removeEventListener('click', this._handleDocumentClick);
     document.removeEventListener('keydown', this._handleDocumentKeydown);
+    window.removeEventListener('message', this._handleOAuthMessage);
+    if (this._colorSchemeQuery) {
+      this._colorSchemeQuery.removeEventListener('change', this._handleColorSchemeChange);
+      this._colorSchemeQuery = null;
+    }
     if (this._themeObserver) {
       this._themeObserver.disconnect();
       this._themeObserver = null;
@@ -851,6 +867,10 @@ export class ScatterLeaf extends HTMLElement {
         if (this._themeObserver) {
           this._themeObserver.disconnect();
           this._themeObserver = null;
+        }
+        if (this._colorSchemeQuery) {
+          this._colorSchemeQuery.removeEventListener('change', this._handleColorSchemeChange);
+          this._colorSchemeQuery = null;
         }
         this.clearAutoPaletteProperties();
       }
@@ -1216,11 +1236,11 @@ export class ScatterLeaf extends HTMLElement {
     });
 
     if (window.matchMedia) {
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-        if (this._theme === 'auto') {
-          this.detectAndApplyAutoPalette();
-        }
-      });
+      if (this._colorSchemeQuery) {
+        this._colorSchemeQuery.removeEventListener('change', this._handleColorSchemeChange);
+      }
+      this._colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      this._colorSchemeQuery.addEventListener('change', this._handleColorSchemeChange);
     }
   }
 
@@ -1273,11 +1293,8 @@ export class ScatterLeaf extends HTMLElement {
    * Escuta mensagens de retorno do popup OAuth
    */
   private setupOAuthListener(): void {
-    window.addEventListener('message', async (event) => {
-      if (event.data && event.data.type === 'scatterleaf-oauth-code' && event.data.code) {
-        await this.exchangeOAuthCode(event.data.code);
-      }
-    });
+    window.removeEventListener('message', this._handleOAuthMessage);
+    window.addEventListener('message', this._handleOAuthMessage);
   }
 
   /**
@@ -4800,18 +4817,6 @@ export class ScatterLeaf extends HTMLElement {
       }
     }
 
-    if (this._isEmojiPickerOpen) {
-      const handleOutsideEmojiClick = (e: MouseEvent) => {
-        const path = e.composedPath();
-        const popover = this.shadowRoot?.getElementById('emoji-popover');
-        if (popover && !path.includes(popover) && btnEmojiToggle && !path.includes(btnEmojiToggle)) {
-          this._isEmojiPickerOpen = false;
-          this.render();
-          document.removeEventListener('click', handleOutsideEmojiClick);
-        }
-      };
-      setTimeout(() => document.addEventListener('click', handleOutsideEmojiClick), 0);
-    }
 
     // 3. Botão de Login do GitHub (quando deslogado)
     const btnLoginSubmit = this.shadowRoot.getElementById('btn-login-submit');
