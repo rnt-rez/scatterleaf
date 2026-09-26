@@ -625,6 +625,7 @@ export class ScatterLeaf extends HTMLElement {
   private _dragStartY: number = 0;
   private _dragStartTx: number = 0;
   private _dragStartTy: number = 0;
+  private _lightboxDragController: AbortController | null = null;
 
   // Fechamento de menus ao clicar fora do componente no document ou tecla Escape
   private _handleDocumentClick = (event: MouseEvent): void => {
@@ -852,6 +853,15 @@ export class ScatterLeaf extends HTMLElement {
     if (this._themeObserver) {
       this._themeObserver.disconnect();
       this._themeObserver = null;
+    }
+    if (this._lightboxDragController) {
+      this._lightboxDragController.abort();
+      this._lightboxDragController = null;
+    }
+    this._isDraggingImage = false;
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      this._speakingId = null;
     }
   }
 
@@ -2487,7 +2497,7 @@ export class ScatterLeaf extends HTMLElement {
 
 
   private render(): void {
-    if (!this.shadowRoot) return;
+    if (!this.shadowRoot || !this.isConnected) return;
 
     const totalComments = this._comments.reduce(
       (acc, c) => acc + 1 + (c.replies?.length || 0),
@@ -2903,6 +2913,10 @@ export class ScatterLeaf extends HTMLElement {
   }
 
   private closeLightbox(): void {
+    if (this._lightboxDragController) {
+      this._lightboxDragController.abort();
+      this._lightboxDragController = null;
+    }
     this._lightboxOpen = false;
     this._lightboxScale = 1;
     this._lightboxTranslateX = 0;
@@ -5329,6 +5343,12 @@ export class ScatterLeaf extends HTMLElement {
           this._dragStartTy = this._lightboxTranslateY;
           this.updateLightboxTransform(true);
 
+          if (this._lightboxDragController) {
+            this._lightboxDragController.abort();
+          }
+          this._lightboxDragController = new AbortController();
+          const { signal } = this._lightboxDragController;
+
           const onMouseMove = (moveEv: MouseEvent) => {
             if (!this._isDraggingImage) return;
             const dx = moveEv.clientX - this._dragStartX;
@@ -5341,12 +5361,14 @@ export class ScatterLeaf extends HTMLElement {
           const onMouseUp = () => {
             this._isDraggingImage = false;
             this.updateLightboxTransform(false);
-            window.removeEventListener('mousemove', onMouseMove);
-            window.removeEventListener('mouseup', onMouseUp);
+            if (this._lightboxDragController) {
+              this._lightboxDragController.abort();
+              this._lightboxDragController = null;
+            }
           };
 
-          window.addEventListener('mousemove', onMouseMove);
-          window.addEventListener('mouseup', onMouseUp);
+          window.addEventListener('mousemove', onMouseMove, { signal });
+          window.addEventListener('mouseup', onMouseUp, { signal });
         });
 
         // Pan / Arrastar fluido com Touch (Mobile / Tablets)
@@ -5359,6 +5381,12 @@ export class ScatterLeaf extends HTMLElement {
             this._dragStartTx = this._lightboxTranslateX;
             this._dragStartTy = this._lightboxTranslateY;
             this.updateLightboxTransform(true);
+
+            if (this._lightboxDragController) {
+              this._lightboxDragController.abort();
+            }
+            this._lightboxDragController = new AbortController();
+            const { signal } = this._lightboxDragController;
 
             const onTouchMove = (tmEv: TouchEvent) => {
               if (!this._isDraggingImage || tmEv.touches.length !== 1) return;
@@ -5373,12 +5401,14 @@ export class ScatterLeaf extends HTMLElement {
             const onTouchEnd = () => {
               this._isDraggingImage = false;
               this.updateLightboxTransform(false);
-              window.removeEventListener('touchmove', onTouchMove);
-              window.removeEventListener('touchend', onTouchEnd);
+              if (this._lightboxDragController) {
+                this._lightboxDragController.abort();
+                this._lightboxDragController = null;
+              }
             };
 
-            window.addEventListener('touchmove', onTouchMove, { passive: true });
-            window.addEventListener('touchend', onTouchEnd);
+            window.addEventListener('touchmove', onTouchMove, { passive: true, signal });
+            window.addEventListener('touchend', onTouchEnd, { signal });
           }
         }, { passive: true });
       }
