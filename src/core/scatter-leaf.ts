@@ -1509,21 +1509,6 @@ export class ScatterLeaf extends HTMLElement {
       );
       return;
     }
-    const actionLabel =
-      action === 'ban'
-        ? this.currentLang === 'pt'
-          ? 'banir'
-          : 'ban'
-        : this.currentLang === 'pt'
-        ? 'restringir mídia de'
-        : 'restrict media for';
-
-    const confirmed = confirm(
-      this.currentLang === 'pt'
-        ? `Tem certeza que deseja ${actionLabel} @${username}?`
-        : `Are you sure you want to ${actionLabel} @${username}?`
-    );
-    if (!confirmed) return;
 
     try {
       await this._brokerClient.setModeration(this._repo, username, action);
