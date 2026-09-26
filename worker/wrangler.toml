@@ -4,7 +4,7 @@ compatibility_date = "2024-09-01"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
-ALLOWED_ORIGINS = "https://minrock.vercel.app,https://rnt-rez-minrock.vercel.app,http://localhost:4321"
+ALLOWED_ORIGINS = "https://minrock.vercel.app,http://localhost:4321"
 GITHUB_CLIENT_ID = "Iv23liZHApvnx6e6wtMJ"
 
 # Secret variables configured via 'wrangler secret put <NAME>':
