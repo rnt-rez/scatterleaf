@@ -3785,6 +3785,15 @@ export class ScatterLeaf extends HTMLElement {
       (this._currentUser.login.toLowerCase() === repoOwner)
     );
 
+    const isViewerAuthor = !!(
+      this._currentUser &&
+      comment.author?.login &&
+      (this._currentUser.login.toLowerCase() === comment.author.login.toLowerCase())
+    );
+
+    const canEdit = isViewerAuthor;
+    const canDelete = isViewerAuthor || isViewerRepoAuthor;
+
     const isSpeaking = this._speakingId === comment.id;
     const isReplying = this._replyingToId === comment.id;
     const isEditing = this._editingId === comment.id;
@@ -3860,18 +3869,30 @@ export class ScatterLeaf extends HTMLElement {
                 `
                     : ''
                 }
-                <button class="sl-dropdown-item btn-edit" data-comment-id="${comment.id}">
-                  <span>✏️</span>
-                  <span>${this.currentLang === 'pt' ? 'Editar' : 'Edit'}</span>
-                </button>
+                ${
+                  canEdit
+                    ? `
+                  <button class="sl-dropdown-item btn-edit" data-comment-id="${comment.id}">
+                    <span>✏️</span>
+                    <span>${this.currentLang === 'pt' ? 'Editar' : 'Edit'}</span>
+                  </button>
+                `
+                    : ''
+                }
                 <button class="sl-dropdown-item btn-copy-link" data-comment-id="${comment.id}">
                   <span>🔗</span>
                   <span>${this.currentLang === 'pt' ? 'Copiar link' : 'Copy link'}</span>
                 </button>
-                <button class="sl-dropdown-item sl-dropdown-danger btn-delete" data-comment-id="${comment.id}">
-                  <span>🗑️</span>
-                  <span>${this.currentLang === 'pt' ? 'Excluir' : 'Delete'}</span>
-                </button>
+                ${
+                  canDelete
+                    ? `
+                  <button class="sl-dropdown-item sl-dropdown-danger btn-delete" data-comment-id="${comment.id}">
+                    <span>🗑️</span>
+                    <span>${this.currentLang === 'pt' ? 'Excluir' : 'Delete'}</span>
+                  </button>
+                `
+                    : ''
+                }
                 ${
                   this._enableModeration &&
                   isViewerRepoAuthor &&
@@ -5953,15 +5974,29 @@ export class ScatterLeaf extends HTMLElement {
   }
 
   private async handleDelete(commentId: string): Promise<void> {
+    if (!this._currentUser || !this._authToken) {
+      alert(
+        this.currentLang === 'pt'
+          ? 'Você precisa estar conectado para excluir comentários.'
+          : 'You must be signed in to delete comments.'
+      );
+      return;
+    }
+
     if (this._brokerClient && this._authToken) {
       try {
         await this._brokerClient.deleteComment(commentId);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Falha ao excluir comentário via broker:', err);
         if (this.isAuthError(err)) {
           this.handleExpiredSession(false);
           return;
         }
+        alert(
+          err?.message ||
+            (this.currentLang === 'pt' ? 'Erro ao excluir comentário.' : 'Failed to delete comment.')
+        );
+        return;
       }
     }
 

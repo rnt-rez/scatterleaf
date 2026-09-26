@@ -183,7 +183,9 @@ export const UPDATE_DISCUSSION_COMMENT_MUTATION = `
 export const DELETE_DISCUSSION_COMMENT_MUTATION = `
   mutation DeleteComment($id: ID!) {
     deleteDiscussionComment(input: { id: $id }) {
-      clientMutationId
+      comment {
+        id
+      }
     }
   }
 `;

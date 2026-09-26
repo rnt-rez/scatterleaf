@@ -278,11 +278,12 @@ export async function handleDeleteComment(request: Request, env: Env): Promise<R
 
   try {
     const result = await fetchGitHubGraphQL<{
-      deleteDiscussionComment: { clientMutationId: string | null };
+      deleteDiscussionComment: { comment: { id: string } | null };
     }>(DELETE_DISCUSSION_COMMENT_MUTATION, { id: commentId }, env, token);
 
     if (result.errors && result.errors.length > 0) {
-      return jsonResponse({ error: 'Erro ao excluir comentário', details: result.errors }, 400, request, env);
+      const errorMsg = result.errors.map((e) => e.message).join(', ');
+      return jsonResponse({ error: `Erro ao excluir comentário: ${errorMsg}`, details: result.errors }, 400, request, env);
     }
 
     return jsonResponse({ success: true, deletedId: commentId }, 200, request, env);
