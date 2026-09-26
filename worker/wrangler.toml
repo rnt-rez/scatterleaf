@@ -1,0 +1,18 @@
+name = "scatterleaf-broker"
+main = "src/index.ts"
+compatibility_date = "2024-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ALLOWED_ORIGINS = "https://minrock.vercel.app,https://rnt-rez-minrock.vercel.app,http://localhost:4321"
+GITHUB_CLIENT_ID = "Iv23liZHApvnx6e6wtMJ"
+
+# Secret variables configured via 'wrangler secret put <NAME>':
+# - GITHUB_CLIENT_ID
+# - GITHUB_CLIENT_SECRET
+# - GITHUB_TOKEN (Personal Access Token or GitHub App Token for public GraphQL queries)
+
+[[kv_namespaces]]
+binding = "MODERATION_KV"
+id = "cb84484f1dbe411f8bfb48d22fd82c37"
+

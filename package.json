@@ -1,0 +1,46 @@
+{
+  "name": "scatterleaf",
+  "version": "0.5.9",
+  "description": "Marginalia in the breeze — Lightweight, iframe-free native Web Component comments for static blogs powered by GitHub Discussions.",
+  "type": "module",
+  "main": "./dist/scatterleaf.umd.cjs",
+  "module": "./dist/scatterleaf.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/scatterleaf.js",
+      "require": "./dist/scatterleaf.umd.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "qa": "npm run build && npm run worker:typecheck && npm run audit:security",
+    "audit:security": "node scripts/audit-security.mjs",
+    "worker:dev": "npm --prefix worker run dev",
+    "worker:typecheck": "npm --prefix worker run typecheck",
+    "worker:deploy": "npm --prefix worker run deploy"
+  },
+  "keywords": [
+    "web-component",
+    "custom-elements",
+    "shadow-dom",
+    "comments",
+    "github-discussions",
+    "astro",
+    "static-site",
+    "discussion-comments"
+  ],
+  "author": "ScatterLeaf Project",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "vite": "^6.2.0",
+    "vite-plugin-dts": "^4.5.3"
+  }
+}
