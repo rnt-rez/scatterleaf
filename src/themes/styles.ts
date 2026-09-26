@@ -1011,6 +1011,30 @@ button, input, textarea, select {
   color: var(--sl-accent);
   border: 1px solid var(--sl-accent);
   user-select: none;
+  font-family: inherit;
+  line-height: inherit;
+  box-sizing: border-box;
+}
+
+button.sl-pinned-badge-clickable {
+  cursor: pointer;
+  background: rgba(56, 189, 248, 0.12);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+button.sl-pinned-badge-clickable:hover {
+  background: rgba(56, 189, 248, 0.25);
+  box-shadow: 0 0 10px var(--sl-accent-glow, rgba(56, 189, 248, 0.35));
+  transform: translateY(-1px);
+}
+
+button.sl-pinned-badge-clickable:active {
+  transform: translateY(0);
+}
+
+.sl-card.sl-card-menu-open,
+.sl-card:has(.sl-dropdown-menu) {
+  z-index: 40;
 }
 
 .sl-card-header {
@@ -1086,6 +1110,12 @@ button, input, textarea, select {
   position: relative;
 }
 
+.sl-menu-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
 .sl-menu-btn {
   background: transparent;
   border: none;
@@ -1103,34 +1133,43 @@ button, input, textarea, select {
   color: var(--sl-text);
 }
 
-.sl-dropdown {
+.sl-dropdown,
+.sl-dropdown-menu {
   position: absolute;
   right: 0;
-  top: 100%;
-  margin-top: 0.25rem;
+  top: calc(100% + 4px);
   background: var(--sl-surface);
   border: 1px solid var(--sl-border);
-  border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 50;
-  min-width: 140px;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  z-index: 60;
+  min-width: 160px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  padding: 0.35rem;
+  gap: 0.15rem;
+  overflow: visible;
+  backdrop-filter: blur(8px);
 }
 
 .sl-dropdown-item {
   background: transparent;
   border: none;
   text-align: left;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.8rem;
+  padding: 0.45rem 0.65rem;
+  font-size: 0.82rem;
+  font-weight: 500;
   color: var(--sl-text);
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  transition: background 0.15s ease;
+  border-radius: 6px;
+  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+  user-select: none;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .sl-dropdown-item:hover {
@@ -1138,7 +1177,9 @@ button, input, textarea, select {
   color: var(--sl-accent);
 }
 
-.sl-dropdown-item.sl-danger:hover {
+.sl-dropdown-item.sl-danger:hover,
+.sl-dropdown-item.sl-dropdown-danger:hover {
+  background: rgba(239, 68, 68, 0.1);
   color: #ef4444;
 }
 

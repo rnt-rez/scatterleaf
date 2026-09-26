@@ -3786,20 +3786,22 @@ export class ScatterLeaf extends HTMLElement {
       ? `<span class="sl-author-badge" part="author-badge">${this.currentLang === 'pt' ? 'Autor' : 'Author'}</span>`
       : '';
 
+    const isViewerRepoAuthor = !!(
+      this._currentUser &&
+      repoOwner &&
+      (this._currentUser.login.toLowerCase() === repoOwner)
+    );
+
     const isPinned = !isReply && !!(
       comment.isPinned ||
       comment.body.includes('<!-- sl:pinned -->') ||
       comment.body.includes('<!-- pinned -->')
     );
     const pinnedBadge = isPinned
-      ? `<span class="sl-pinned-badge" part="pinned-badge" title="${this.currentLang === 'pt' ? 'Comentário fixado no topo pelo autor' : 'Comment pinned to top by author'}"><span>📌</span><span>${this.currentLang === 'pt' ? 'Fixado pelo autor' : 'Pinned by author'}</span></span>`
+      ? isViewerRepoAuthor
+        ? `<button type="button" class="sl-pinned-badge sl-pinned-badge-clickable" data-comment-id="${comment.id}" part="pinned-badge" title="${this.currentLang === 'pt' ? 'Clique para desafixar do topo' : 'Click to unpin from top'}"><span>📌</span><span>${this.currentLang === 'pt' ? 'Fixado pelo autor' : 'Pinned by author'}</span></button>`
+        : `<span class="sl-pinned-badge" part="pinned-badge" title="${this.currentLang === 'pt' ? 'Comentário fixado no topo pelo autor' : 'Comment pinned to top by author'}"><span>📌</span><span>${this.currentLang === 'pt' ? 'Fixado pelo autor' : 'Pinned by author'}</span></span>`
       : '';
-
-    const isViewerRepoAuthor = !!(
-      this._currentUser &&
-      repoOwner &&
-      (this._currentUser.login.toLowerCase() === repoOwner)
-    );
 
     const isViewerAuthor = !!(
       this._currentUser &&
@@ -3848,7 +3850,7 @@ export class ScatterLeaf extends HTMLElement {
     const existingReactions = (comment.reactions || []).filter((r) => r.count > 0);
 
     return `
-      <article class="sl-card ${isReply ? 'sl-card-reply' : ''} ${isPinned ? 'sl-card-pinned' : ''}" id="comment-${comment.id}" part="card">
+      <article class="sl-card ${isReply ? 'sl-card-reply' : ''} ${isPinned ? 'sl-card-pinned' : ''} ${isMenuOpen ? 'sl-card-menu-open' : ''}" id="comment-${comment.id}" part="card">
         <!-- Cabeçalho do Card (Avatar ancorado no topo!) -->
         <div class="sl-card-header">
           <div class="sl-author-info">
@@ -5072,6 +5074,25 @@ export class ScatterLeaf extends HTMLElement {
         const commentId = target.getAttribute('data-comment-id');
         if (!commentId) return;
         await this.handleTogglePin(commentId);
+      });
+    });
+
+    // 12.2. Badge de Fixado Clicável (Desafixar direto pelo badge com confirmação para evitar esbarrões)
+    const clickablePinnedBadges = this.shadowRoot.querySelectorAll('.sl-pinned-badge-clickable');
+    clickablePinnedBadges.forEach((badge) => {
+      badge.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const target = e.currentTarget as HTMLElement;
+        const commentId = target.getAttribute('data-comment-id');
+        if (!commentId) return;
+
+        const confirmMsg =
+          this.currentLang === 'pt'
+            ? 'Deseja realmente desafixar este comentário do topo?'
+            : 'Are you sure you want to unpin this comment from the top?';
+        if (window.confirm(confirmMsg)) {
+          await this.handleTogglePin(commentId);
+        }
       });
     });
 
