@@ -1200,6 +1200,10 @@ export class ScatterLeaf extends HTMLElement {
 
       const accentHex = `rgb(${accentRgb.r}, ${accentRgb.g}, ${accentRgb.b})`;
 
+      // Calcula luminância relativa do accent para definir contraste de texto WCAG AA/AAA
+      const accentLuminance = 0.2126 * accentRgb.r + 0.7152 * accentRgb.g + 0.0722 * accentRgb.b;
+      const accentContrastColor = accentLuminance > 140 ? (isDark ? '#0f172a' : '#18181b') : '#ffffff';
+
       // Injeta diretamente as variáveis no :host do Shadow DOM
       this.style.setProperty('--sl-bg', `rgb(${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b})`);
       this.style.setProperty('--sl-surface', surfaceColor);
@@ -1209,6 +1213,7 @@ export class ScatterLeaf extends HTMLElement {
       this.style.setProperty('--sl-text-muted', textMutedColor);
       this.style.setProperty('--sl-accent', accentHex);
       this.style.setProperty('--sl-accent-hover', accentHex);
+      this.style.setProperty('--sl-accent-contrast', accentContrastColor);
       this.style.setProperty('--sl-mention-color', mentionColor);
       this.style.setProperty('--sl-mention-bg', mentionBg);
       this.style.setProperty('--sl-mention-border', mentionBorder);

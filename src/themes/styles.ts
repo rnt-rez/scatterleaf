@@ -2804,7 +2804,7 @@ button.sl-pinned-badge-clickable:active {
   --sl-border: var(--page-border, var(--color-border, #e7e5e4));
   --sl-accent: var(--page-accent, var(--color-accent, #92400e));
   --sl-accent-hover: var(--page-accent-hover, var(--color-accent-hover, #b45309));
-  --sl-accent-contrast: #ffffff;
+  --sl-accent-contrast: var(--page-accent-contrast, var(--color-accent-contrast, #ffffff));
   --sl-accent-glow: rgba(146, 64, 14, 0.25);
   --sl-mention-color: var(--page-accent, var(--color-accent, #92400e));
   --sl-mention-bg: rgba(146, 64, 14, 0.12);
