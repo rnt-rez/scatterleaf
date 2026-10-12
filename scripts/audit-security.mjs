@@ -48,8 +48,27 @@ for (const file of targetFiles) {
       if (/\$\{?[A-Z0-9_]+\}?/.test(match[0]) || /<[a-zA-Z0-9_-]+>/.test(match[0]) || /example|dummy|placeholder/i.test(match[0])) {
         continue;
       }
-      findings.push({ severity: 'HIGH', category: 'Secret Leak', file: rel, detail: `Pattern ${pat.name} matched: "${match[0].slice(0, 50)}"` });
+      const redacted = `${match[0].slice(0, 4)}${'*'.repeat(Math.max(match[0].length - 4, 0))}`;
+      findings.push({ severity: 'HIGH', category: 'Secret Leak', file: rel, detail: `Pattern ${pat.name} matched (redacted): "${redacted}"` });
     }
+  }
+}
+
+// 2. Lockfile & Dependency Version Hygiene
+if (fs.existsSync('package.json') && fs.existsSync('package-lock.json')) {
+  try {
+    const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+    const lock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
+    if (pkg.version && lock.version && pkg.version !== lock.version) {
+      findings.push({
+        severity: 'HIGH',
+        category: 'Lockfile Desync',
+        file: 'package-lock.json',
+        detail: `package.json version (${pkg.version}) does not match package-lock.json version (${lock.version}). Run "npm install" to synchronize.`
+      });
+    }
+  } catch (err) {
+    findings.push({ severity: 'MEDIUM', category: 'Parse Error', file: 'package.json', detail: `Could not parse package.json / package-lock.json: ${err.message}` });
   }
 }
 
