@@ -1,0 +1,18 @@
+# @access public - generic template config (copy to worker/wrangler.toml and customize)
+name = "scatterleaf-broker"
+main = "src/index.ts"
+compatibility_date = "2024-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ALLOWED_ORIGINS = "https://yourdomain.com,http://localhost:4321"
+GITHUB_CLIENT_ID = "YOUR_GITHUB_CLIENT_ID"
+
+# Secret variables configured via 'wrangler secret put <NAME>':
+# - GITHUB_CLIENT_ID
+# - GITHUB_CLIENT_SECRET
+# - GITHUB_TOKEN (Personal Access Token or GitHub App Token for public GraphQL queries)
+
+[[kv_namespaces]]
+binding = "MODERATION_KV"
+id = "YOUR_KV_NAMESPACE_ID"

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ScatterLeaf Playground — Marginalia in the breeze</title>
+    <style>
+      :root {
+        --page-bg: #f5f5f4;
+        --page-text: #1c1917;
+        --page-card-bg: #ffffff;
+        --page-border: #e7e5e4;
+      }
+
+      body[data-page-theme="cream"] {
+        --page-bg: #f1ede1;
+        --page-text: #2c2724;
+        --page-card-bg: #fbf9f4;
+        --page-border: #ded7c6;
+      }
+
+      body[data-page-theme="midnight"] {
+        --page-bg: #090d13;
+        --page-text: #e6edf3;
+        --page-card-bg: #161b22;
+        --page-border: #30363d;
+      }
+
+      body[data-page-theme="slate"] {
+        --page-bg: #0b1120;
+        --page-text: #f8fafc;
+        --page-card-bg: #1e293b;
+        --page-border: #334155;
+      }
+
+      body[data-page-theme="terminal"] {
+        --page-bg: #010409;
+        --page-text: #00ff66;
+        --page-card-bg: #0a0e14;
+        --page-border: #00ff6633;
+      }
+
+      body[data-page-theme="high-contrast"] {
+        --page-bg: #000000;
+        --page-text: #ffffff;
+        --page-card-bg: #0a0a0a;
+        --page-border: #ffffff;
+      }
+
+      body[data-page-theme="protanopia"] {
+        --page-bg: #0e1726;
+        --page-text: #e0e1dd;
+        --page-card-bg: #1b263b;
+        --page-border: #415a77;
+      }
+
+      body {
+        margin: 0;
+        padding: 2rem 1rem;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: var(--page-bg);
+        color: var(--page-text);
+        transition: background-color 0.3s ease, color 0.3s ease;
+        display: flex;
+        justify-content: center;
+      }
+
+      .wrapper {
+        width: 100%;
+        max-width: 760px;
+      }
+
+      .toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        background: var(--page-card-bg);
+        border: 1px solid var(--page-border);
+        border-radius: 12px;
+        padding: 0.75rem 1.25rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      .toolbar-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .theme-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      .theme-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border-radius: 6px;
+        cursor: pointer;
+        border: 1px solid var(--page-border);
+        background: var(--page-bg);
+        color: var(--page-text);
+        transition: all 0.2s ease;
+      }
+
+      .theme-btn:hover {
+        transform: translateY(-1px);
+        border-color: #888;
+      }
+
+      .theme-btn.active {
+        background: #92400e;
+        color: #ffffff;
+        border-color: #92400e;
+      }
+
+      /* Mock Article */
+      .mock-article {
+        background: var(--page-card-bg);
+        border: 1px solid var(--page-border);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      }
+
+      .mock-article h1 {
+        margin-top: 0;
+        font-size: 1.85rem;
+        line-height: 1.3;
+      }
+
+      .mock-article p {
+        line-height: 1.7;
+        color: var(--page-text);
+        opacity: 0.9;
+      }
+
+      .mock-article-meta {
+        font-size: 0.85rem;
+        opacity: 0.6;
+        margin-bottom: 1.5rem;
+      }
+
+      .comments-area {
+        margin-top: 2rem;
+      }
+    </style>
+  </head>
+  <body data-page-theme="cream">
+    <div class="wrapper">
+      <!-- Toolbar de Controles do Sandbox -->
+      <nav class="toolbar">
+        <div class="toolbar-title">
+          <span>🍃</span>
+          <span>ScatterLeaf Sandbox</span>
+        </div>
+        <div class="theme-buttons" id="theme-buttons">
+          <button class="theme-btn" data-theme="auto">🌈 Auto (Camaleão)</button>
+          <button class="theme-btn active" data-theme="cream">📜 Cream</button>
+          <button class="theme-btn" data-theme="midnight">🌌 Midnight</button>
+          <button class="theme-btn" data-theme="slate">⚓ Slate</button>
+          <button class="theme-btn" data-theme="clean-white">☀️ Clean White</button>
+          <button class="theme-btn" data-theme="terminal">💻 Terminal</button>
+          <button class="theme-btn" data-theme="high-contrast">👁️ Alto Contraste</button>
+          <button class="theme-btn" data-theme="protanopia">🎨 Daltonismo</button>
+        </div>
+      </nav>
+
+      <!-- Barra de Controle do Broker & Autenticação -->
+      <div class="toolbar" style="margin-top: -1rem; margin-bottom: 2rem; font-size: 0.85rem;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+          <span style="font-weight: 600;">Modo de Dados:</span>
+          <button class="theme-btn active" id="btn-mode-mock">🏠 Mock Local</button>
+          <button class="theme-btn" id="btn-mode-broker">🌐 Edge Broker (localhost:8787)</button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <button class="theme-btn" id="btn-test-login">🐙 Testar Login (@demo-reader)</button>
+          <button class="theme-btn" id="btn-test-logout">🚪 Sair</button>
+        </div>
+      </div>
+
+      <!-- Artigo Simulado para Contexto Visual -->
+      <article class="mock-article">
+        <div class="mock-article-meta">15 de Setembro de 2026 • 5 min de leitura • Engenharia de Software</div>
+        <h1>Arquitetura de Comentários Nativos sem Iframes: O Futuro da Marginalia Web</h1>
+        <p>
+          Durante décadas, a inclusão de discussões em páginas estáticas dependeu de <code>&lt;iframe&gt;</code> externos. Essa barreira cross-origin sempre introduziu atrito visual, lentidão de carregamento e incompatibilidade de temas.
+        </p>
+        <p>
+          Com o <strong>ScatterLeaf</strong>, o poder do Shadow DOM é desbloqueado: os comentários flutuam leves na brisa da página, herdando tokens cromáticos e respondendo com a velocidade nativa da web moderna.
+        </p>
+      </article>
+
+      <!-- Componente ScatterLeaf em Teste -->
+      <section class="comments-area">
+        <scatter-leaf
+          id="demo-comments"
+          repo="rnt-rez/scatterleaf"
+          category="General"
+          theme="cream"
+          lang="pt"
+        ></scatter-leaf>
+      </section>
+    </div>
+
+    <script type="module" src="/src/index.ts"></script>
+    <script>
+      // Controle dinâmico do seletor de temas no Sandbox
+      const buttons = document.querySelectorAll('.theme-btn[data-theme]');
+      const component = document.getElementById('demo-comments');
+      const body = document.body;
+
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          buttons.forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          const theme = btn.getAttribute('data-theme');
+          component.setAttribute('theme', theme);
+          body.setAttribute('data-page-theme', theme);
+        });
+      });
+
+      // Alternância de Modo (Mock vs Edge Broker)
+      const btnMock = document.getElementById('btn-mode-mock');
+      const btnBroker = document.getElementById('btn-mode-broker');
+
+      btnMock.addEventListener('click', () => {
+        btnMock.classList.add('active');
+        btnBroker.classList.remove('active');
+        component.removeAttribute('broker');
+      });
+
+      btnBroker.addEventListener('click', () => {
+        btnBroker.classList.add('active');
+        btnMock.classList.remove('active');
+        component.setAttribute('broker', 'http://localhost:8787');
+      });
+
+      // Teste Rápido de Login/Logout
+      const btnTestLogin = document.getElementById('btn-test-login');
+      const btnTestLogout = document.getElementById('btn-test-logout');
+
+      btnTestLogin.addEventListener('click', () => {
+        component.loginWithGitHub();
+      });
+
+      btnTestLogout.addEventListener('click', () => {
+        component.logout();
+      });
+
+      // Escuta de eventos do Web Component
+      window.addEventListener('comment-added', (e) => {
+        console.log('🍃 [ScatterLeaf Event] Novo comentário adicionado:', e.detail);
+      });
+      window.addEventListener('scatterleaf-login', (e) => {
+        console.log('🍃 [ScatterLeaf Event] Usuário autenticado:', e.detail);
+      });
+      window.addEventListener('scatterleaf-logout', () => {
+        console.log('🍃 [ScatterLeaf Event] Usuário desconectado');
+      });
+    </script>
+  </body>
+</html>
